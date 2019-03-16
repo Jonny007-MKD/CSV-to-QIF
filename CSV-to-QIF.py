@@ -14,47 +14,36 @@
 '''#**************************************************************************/
 
 
-import os
-import sys
-import re
-import csv
+import os, sys, csv, locale
+from datetime import datetime
+from convert import convertToTransaction
+from Settings import Settings
 
 #
 #     @brief  Takes given CSV and parses it to be exported to a QIF
 #
 #     @params[in] inf_
-#     File to be read and converted to QIF
-#     @params[in] outf_
 #     File that the converted data will go
-#     @params[in] deff_
-#     File with the settings for converting CSV
+#     @params[in] settings_
+#     settings for converting CSV
 #
 #
-def readCsv(inf_,outf_,deff_): #will need to receive input csv and def file
+def readCsv(inf_, settings_):
+    csvIn = csv.reader(inf_, delimiter=settings_.delimiter)  #create csv object using the given separator
 
-    csvdeff = csv.reader(deff_, delimiter=',')
-
-    next(csvdeff,None)
-
-
-
-    for settings in csvdeff:
-        date_= int(settings[0])  #convert to int
-        amount_ = int(settings[2])  #How much was the transaction
-        memo_ = int(settings[3])  #discription of the transaction
-        payee_ = int(settings[4])  #Where the money is going
-        deli_ = settings[5] #How the csv is separated
-        header_ = int(settings[6])  #Set if there is a header to skip
-
-    csvIn = csv.reader(inf_, delimiter=deli_)  #create csv object using the given separator
-
-    if header_ >= 1: #If there is a header skip the fist line
-        next(csvIn,None)  #skip header
+    header_ = settings_.header
+    while header_ >= 1: #If there is a header skip the fist line
+        next(csvIn, None)  #skip header
+        header_ -= 1
 
     for row in csvIn:
-        writeFile(row[date_],row[amount_],row[memo_],row[payee_],outf_)  #export each row as a qif entry
+        date = datetime.strptime(row[settings_.date], settings_.dateformat)
+        amount = locale.atof(row[settings_.amount]) if row[settings_.amount] else None
 
-
+        if amount != None:
+            transaction = convertToTransaction(date, amount, row[settings_.memo], row[settings_.payee])
+            if transaction != None:
+                writeFile(transaction)
 
 
 
@@ -69,70 +58,50 @@ def readCsv(inf_,outf_,deff_): #will need to receive input csv and def file
 #     Description of transaction
 #     @params[in] payee_
 #     Transaction paid to
-#     @params[in] filelocation_
-#     Location of the Output file
 #
 #
 # https://en.wikipedia.org/wiki/Quicken_Interchange_Format
 #
-def writeFile(date_,amount_,memo_,payee_, filelocation_):
-    outFile = open(filelocation_,"a")  #Open file to be appended
-    outFile.write("!Type:Cash\n")  #Header of transaction, Currently all set to cash
-    outFile.write("D")  #Date line starts with the capital D
-    outFile.write(date_)
-    outFile.write("\n")
+def writeFile(transaction_):
+    print("!Type:Cash")     # Header of transaction, Currently all set to cash
 
-    outFile.write("T")  #Transaction amount starts here
-    outFile.write(amount_)
-    outFile.write("\n")
+    print("D" + datetime.strftime(transaction_.date, "%d.%m.%Y"))
 
-    outFile.write("M")  #Memo Line
-    outFile.write(memo_)
-    outFile.write("\n")
+    print("T" + str(transaction_.amount))
 
-    if(payee_!=-1):
-        outFile.write("P")  #Payee line
-        outFile.write(payee_)
-        outFile.write("\n")
+    if transaction_.memo:
+        print("M" + str(transaction_.memo))
 
-    outFile.write("^\n")  #The last line of each transaction starts with a Caret to mark the end
-    outFile.close()
+    if transaction_.payee:
+        print("P" + transaction_.payee)
+
+    if transaction_.category:
+        print("L" + transaction_.category)
+
+    print("^")  #The last line of each transaction starts with a Caret to mark the end
+
+
 def convert():
-
-
-     error = 'Input error!____ Format [import.csv] [output.csv] [import.def] ____\n\n\
-                 [import.csv] = File to be converted\n\
-                 [output.qif] = File to be created\n\
-                 [import.def] = Definition file describing csv file\n'
-
-     if (len(sys.argv) != 4):  #Check to make sure all the parameters are there
-            print error
-            exit(1)
-
-     if os.path.isfile(sys.argv[1]):
-         fromfile = open(sys.argv[1],'r')
-     else:
-         print '\nInput error!____ import.csv: ' + sys.argv[1] + ' does not exist / cannot be opened !!\n'
+    if len(sys.argv) != 3:  #Check to make sure all the parameters are there
+         print('Input error! Format [import.csv] [output.csv] [import.def] [transform.py]\n\
+         [import.csv] = File to be converted\n\
+         [import.def] = Definition file describing csv file\n', file=sys.stderr)
          exit(1)
 
-     try:
-         tofile   = open(sys.argv[2],'a')
-     except:
-         print '\nInput error!____ output.csv: ' + sys.argv[2] + ' cannot be created !!\n'
-         exit(1)
+    if not os.path.isfile(sys.argv[2]):
+         print('\nInput error! import.def: ' + sys.argv[3] + ' does not exist/cannot be opened!\n', file=sys.stderr)
+         exit(2)
 
-     if os.path.isfile(sys.argv[3]):
-         deffile = open(sys.argv[3],'r')
-     else:
-         print '\nInput error!____ import.def: ' + sys.argv[3] + ' does not exist / cannot be opened !!\n'
-         exit(1)
+    settings = Settings(sys.argv[2])
+    
+    if not os.path.isfile(sys.argv[1]):
+         print('\nInput error! import.csv: ' + sys.argv[1] + ' does not exist/cannot be opened!\n', file=sys.stderr)
+         exit(3)
 
-     tofile = sys.argv[2]
-     readCsv(fromfile,tofile,deffile)
+    locale.setlocale(locale.LC_NUMERIC, settings.locale)
 
-     fromfile.close()
-     deffile.close()
+    with open(sys.argv[1], 'r', encoding=settings.encoding) as fromfile:
+        readCsv(fromfile, settings)
 
 
-
-convert()#Start
+convert() #Start

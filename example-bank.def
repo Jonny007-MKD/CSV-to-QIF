@@ -1,2 +1,2 @@
-Date,Date Format,Amount,Memo,Payee,Separator,Header
-0,not used,4,1,2,",",1
+Date,Date Format,Amount,Memo,Payee,Separator,Header,Encoding,Locale
+0,%d.%m.%Y,4,1,2,",",1,latin1,de_DE.utf-8
