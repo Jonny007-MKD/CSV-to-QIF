@@ -4,7 +4,8 @@
         "delimiter":    ",",
         "header":       1,
         "encoding":     "latin1",
-        "locale":       "de_DE.utf-8"
+        "locale":       "de_DE.utf-8",
+        "accountName":  "Bank XYZ"
     },
     "columns": {
         "date":         0,

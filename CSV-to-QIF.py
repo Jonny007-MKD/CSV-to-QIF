@@ -81,6 +81,14 @@ def writeFile(transaction_):
     print("^")  #The last line of each transaction starts with a Caret to mark the end
 
 
+
+def writeHeader(settings_):
+    if settings_.accountName:
+        print("!Account")
+        print("N" + settings_.accountName)
+        print("^")
+
+
 def convert():
     if len(sys.argv) != 3:  #Check to make sure all the parameters are there
          print('''Input error! Format [import.csv] [import.def]
@@ -100,8 +108,11 @@ def convert():
 
     locale.setlocale(locale.LC_NUMERIC, settings.locale)
 
+    writeHeader(settings)
+
     with open(sys.argv[1], 'r', encoding=settings.encoding) as fromfile:
         readCsv(fromfile, settings)
 
 
-convert() #Start
+if __name__ == '__main__':
+    convert() #Start

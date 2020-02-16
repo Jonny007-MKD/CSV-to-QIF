@@ -8,6 +8,7 @@ class Settings:
             self.delimiter   = deff["meta"]["delimiter"]
             self.encoding    = deff["meta"]["encoding"]
             self.locale      = deff["meta"]["locale"]
+            self.accountName = deff["meta"]["accountName"]
             self.header      = int(deff["meta"]["header"])
             self.date        = int(deff["columns"]["date"])
             self.amount      = int(deff["columns"]["amount"])
