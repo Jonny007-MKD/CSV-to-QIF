@@ -1,2 +1,15 @@
-Date,Date Format,Amount,Memo,Payee,Separator,Header,Encoding,Locale
-0,%d.%m.%Y,4,1,2,",",1,latin1,de_DE.utf-8
+{
+    "meta": {        
+        "dateformat":   "%d/%m/%Y",
+        "delimiter":    ",",
+        "header":       1,
+        "encoding":     "latin1",
+        "locale":       "de_DE.utf-8"
+    },
+    "columns": {
+        "date":         0,
+        "amount":       4,
+        "memo":         1,
+        "payee":        2
+    }
+}
