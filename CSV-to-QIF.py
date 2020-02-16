@@ -83,9 +83,9 @@ def writeFile(transaction_):
 
 def convert():
     if len(sys.argv) != 3:  #Check to make sure all the parameters are there
-         print('Input error! Format [import.csv] [output.csv] [import.def] [transform.py]\n\
-         [import.csv] = File to be converted\n\
-         [import.def] = Definition file describing csv file\n', file=sys.stderr)
+         print('''Input error! Format [import.csv] [import.def]
+[import.csv] = File to be converted
+[import.def] = Definition file describing csv file''', file=sys.stderr)
          exit(1)
 
     if not os.path.isfile(sys.argv[2]):
