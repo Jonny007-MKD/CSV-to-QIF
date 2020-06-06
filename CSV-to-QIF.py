@@ -97,7 +97,7 @@ def convert():
          exit(1)
 
     if not os.path.isfile(sys.argv[2]):
-         print('\nInput error! import.def: ' + sys.argv[3] + ' does not exist/cannot be opened!\n', file=sys.stderr)
+         print('\nInput error! import.def: ' + sys.argv[2] + ' does not exist/cannot be opened!\n', file=sys.stderr)
          exit(2)
 
     settings = Settings(sys.argv[2])
