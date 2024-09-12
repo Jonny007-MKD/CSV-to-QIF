@@ -18,6 +18,7 @@ import os, sys, csv, locale
 from datetime import datetime
 from convert import convertToTransaction
 from Settings import Settings
+import traceback
 
 #
 #     @brief  Takes given CSV and parses it to be exported to a QIF
@@ -36,15 +37,18 @@ def readCsv(inf_, settings_):
         next(csvIn, None)  #skip header
         header_ -= 1
 
-    for row in csvIn:
-        date = datetime.strptime(row[settings_.date], settings_.dateformat)
-        amount = locale.atof(row[settings_.amount]) if row[settings_.amount] else None
+    for i, row in enumerate(csvIn):
+        try:
+            date = datetime.strptime(row[settings_.date], settings_.dateformat)
+            amount = locale.atof(row[settings_.amount]) if row[settings_.amount] else None
 
-        if amount != None:
-            transaction = convertToTransaction(date, amount, row[settings_.memo], row[settings_.payee])
-            if transaction != None:
-                writeFile(transaction)
-
+            if amount != None:
+                transaction = convertToTransaction(date, amount, row[settings_.memo], row[settings_.payee])
+                if transaction != None:
+                    writeFile(transaction)
+        except Exception:
+            print(f"Error in row {i}: '{row}'", file=sys.stderr)
+            raise
 
 
 #
