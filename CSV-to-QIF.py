@@ -90,6 +90,7 @@ def writeHeader(settings_):
     if settings_.accountName:
         print("!Account")
         print("N" + settings_.accountName)
+        print("TBank")
         print("^")
 
 
